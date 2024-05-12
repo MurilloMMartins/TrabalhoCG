@@ -5,7 +5,9 @@ import numpy as np
 import glm
 import math
 from PIL import Image
+
 from model import *
+from shader import Shader
 
 glfw.init()
 glfw.window_hint(glfw.VISIBLE, glfw.FALSE);
@@ -41,40 +43,8 @@ fragment_code = """
         }
         """
 
-# Request a program and shader slots from GPU
-program  = glCreateProgram()
-vertex   = glCreateShader(GL_VERTEX_SHADER)
-fragment = glCreateShader(GL_FRAGMENT_SHADER)
-
-# Set shaders source
-glShaderSource(vertex, vertex_code)
-glShaderSource(fragment, fragment_code)
-
-# Compile shaders
-glCompileShader(vertex)
-if not glGetShaderiv(vertex, GL_COMPILE_STATUS):
-    error = glGetShaderInfoLog(vertex).decode()
-    print(error)
-    raise RuntimeError("Erro de compilacao do Vertex Shader")
-
-glCompileShader(fragment)
-if not glGetShaderiv(fragment, GL_COMPILE_STATUS):
-    error = glGetShaderInfoLog(fragment).decode()
-    print(error)
-    raise RuntimeError("Erro de compilacao do Fragment Shader")
-
-# Attach shader objects to the program
-glAttachShader(program, vertex)
-glAttachShader(program, fragment)
-
-# Build program
-glLinkProgram(program)
-if not glGetProgramiv(program, GL_LINK_STATUS):
-    print(glGetProgramInfoLog(program))
-    raise RuntimeError('Linking error')
-    
-# Make program the default program
-glUseProgram(program)
+shader = Shader(vertex_code, fragment_code)
+shader.useProgram()
 
 # Textures
 glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE)
@@ -102,7 +72,7 @@ glBindBuffer(GL_ARRAY_BUFFER, buffer[0])
 glBufferData(GL_ARRAY_BUFFER, vertices.nbytes, vertices, GL_STATIC_DRAW)
 stride = vertices.strides[0]
 offset = ctypes.c_void_p(0)
-loc_vertices = glGetAttribLocation(program, "position")
+loc_vertices = shader.getAttributeLocation("position")
 glEnableVertexAttribArray(loc_vertices)
 glVertexAttribPointer(loc_vertices, 3, GL_FLOAT, False, stride, offset)
 
@@ -113,7 +83,7 @@ glBindBuffer(GL_ARRAY_BUFFER, buffer[1])
 glBufferData(GL_ARRAY_BUFFER, textures.nbytes, textures, GL_STATIC_DRAW)
 stride = textures.strides[0]
 offset = ctypes.c_void_p(0)
-loc_texture_coord = glGetAttribLocation(program, "texture_coord")
+loc_texture_coord = shader.getAttributeLocation("texture_coord")
 glEnableVertexAttribArray(loc_texture_coord)
 glVertexAttribPointer(loc_texture_coord, 2, GL_FLOAT, False, stride, offset)
 
@@ -263,7 +233,7 @@ while not glfw.window_should_close(window):
     s_x = 1.0; s_y = 1.0; s_z = 1.0;
     
     mat_model = model(angle, r_x, r_y, r_z, t_x, t_y, t_z, s_x, s_y, s_z)
-    loc_model = glGetUniformLocation(program, "model")
+    loc_model = shader.getUniformLocation("model")
     glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
        
     #define id da textura do modelo
@@ -274,11 +244,11 @@ while not glfw.window_should_close(window):
     glDrawArrays(GL_TRIANGLES, 0, 36) ## renderizando
     
     mat_view = view()
-    loc_view = glGetUniformLocation(program, "view")
+    loc_view = shader.getUniformLocation("view")
     glUniformMatrix4fv(loc_view, 1, GL_FALSE, glm.value_ptr(mat_view))
 
     mat_projection = projection()
-    loc_projection = glGetUniformLocation(program, "projection")
+    loc_projection = shader.getUniformLocation("projection")
     glUniformMatrix4fv(loc_projection, 1, GL_FALSE, glm.value_ptr(mat_projection))  
     
     
