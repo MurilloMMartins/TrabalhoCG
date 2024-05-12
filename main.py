@@ -4,8 +4,9 @@ import numpy as np
 import glm
 import math
 
-from model import *
+from model import Model
 from shader import Shader
+from model_helper import ModelHelper
 
 height = 1600
 width = 1200
@@ -70,6 +71,16 @@ def mouse_event(window, xpos, ypos):
     front.z = math.sin(glm.radians(yaw)) * math.cos(glm.radians(pitch))
     camera_front = glm.normalize(front)
 
+def view_matrix(camera_position, camera_front, camera_up):
+    mat_view = glm.lookAt(camera_position, camera_position + camera_front, camera_up);
+    return mat_view
+
+def projection_matrix():
+    global height, width, inc_fov, inc_near, inc_far
+    # perspective parameters: fovy, aspect, near, far
+    mat_projection = glm.perspective(glm.radians(45.0), width/height, 0.1, 1000.0)
+    return mat_projection
+
 def model_matrix(angle, r_x, r_y, r_z, t_x, t_y, t_z, s_x, s_y, s_z):
     angle = math.radians(angle)
     
@@ -83,16 +94,6 @@ def model_matrix(angle, r_x, r_y, r_z, t_x, t_y, t_z, s_x, s_y, s_z):
     matrix_transform = glm.scale(matrix_transform, glm.vec3(s_x, s_y, s_z))
     
     return matrix_transform
-
-def view_matrix(camera_position, camera_front, camera_up):
-    mat_view = glm.lookAt(camera_position, camera_position + camera_front, camera_up);
-    return mat_view
-
-def projection_matrix():
-    global height, width, inc_fov, inc_near, inc_far
-    # perspective parameters: fovy, aspect, near, far
-    mat_projection = glm.perspective(glm.radians(45.0), width/height, 0.1, 1000.0)
-    return mat_projection
 
 def main():
     global width, height, camera_pos, camera_front, camera_up, polygonal_mode, lastX, lastY
@@ -143,36 +144,22 @@ def main():
     texture_amount = 10
     textures = glGenTextures(texture_amount)
 
-    vertices_list = []    
-    textures_coord_list = []
-    texture_id = 0
-    uploaded_objects = []
-    texture_id = load_model_helper('references/caixa/caixa.obj','references/caixa/caixa2.jpg', uploaded_objects, vertices_list, textures_coord_list, texture_id)
+    # Loading Models
+    box = Model('box', 'crate/Crate1.obj','crate/crate_1.jpg', 0)
+    box.position = glm.vec3(0.0, -1.0, 0.0)
+    box.rotation = glm.vec3(0.0, 0.0, 1.0)
+    box.scale = glm.vec3(1.0, 1.0, 1.0)
 
-    # Request a buffer slot from GPU
-    buffer = glGenBuffers(2)
+    box1 = Model('box1', 'references/caixa/caixa.obj','references/caixa/caixa2.jpg', 1)
+    box1.position = glm.vec3(0.0, -1.0, 3.0)
+    box1.rotation = glm.vec3(0.0, 0.0, 1.0)
+    box1.scale = glm.vec3(1.0, 1.0, 1.0)
 
-    # Uploading vertices data
-    vertices = np.zeros(len(vertices_list), [("position", np.float32, 3)])
-    vertices['position'] = vertices_list
-    glBindBuffer(GL_ARRAY_BUFFER, buffer[0])
-    glBufferData(GL_ARRAY_BUFFER, vertices.nbytes, vertices, GL_STATIC_DRAW)
-    stride = vertices.strides[0]
-    offset = ctypes.c_void_p(0)
-    loc_vertices = shader.getAttributeLocation("position")
-    glEnableVertexAttribArray(loc_vertices)
-    glVertexAttribPointer(loc_vertices, 3, GL_FLOAT, False, stride, offset)
-
-    # Uploading texture data
-    textures = np.zeros(len(textures_coord_list), [("position", np.float32, 2)]) # duas coordenadas
-    textures['position'] = textures_coord_list
-    glBindBuffer(GL_ARRAY_BUFFER, buffer[1])
-    glBufferData(GL_ARRAY_BUFFER, textures.nbytes, textures, GL_STATIC_DRAW)
-    stride = textures.strides[0]
-    offset = ctypes.c_void_p(0)
-    loc_texture_coord = shader.getAttributeLocation("texture_coord")
-    glEnableVertexAttribArray(loc_texture_coord)
-    glVertexAttribPointer(loc_texture_coord, 2, GL_FLOAT, False, stride, offset)
+    # Loading all models into a helper
+    ModelHelper.attach_model(box)
+    ModelHelper.attach_model(box1)
+    print(len(ModelHelper.vertices_list))
+    ModelHelper.upload_models(shader)
 
     # Setting GLFW callbacks
     glfw.set_key_callback(window,key_event)
@@ -198,24 +185,15 @@ def main():
         if polygonal_mode==False:
             glPolygonMode(GL_FRONT_AND_BACK,GL_FILL)
 
-        # Applying transformations
-        # Rotation
-        angle = 0.0;
-        r_x = 0.0; r_y = 0.0; r_z = 1.0;
-        # Translation
-        t_x = 0.0; t_y = -1.0; t_z = 0.0;
-        # Scale
-        s_x = 1.0; s_y = 1.0; s_z = 1.0;
-        
-        mat_model = model_matrix(angle, r_x, r_y, r_z, t_x, t_y, t_z, s_x, s_y, s_z)
+        mat_model = box.model_matrix()
         loc_model = shader.getUniformLocation("model")
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
-        
-        #define id da textura do modelo
-        glBindTexture(GL_TEXTURE_2D, 0)
-        
-        # desenha o modelo
-        glDrawArrays(GL_TRIANGLES, 0, 36) ## renderizando
+        ModelHelper.render_model('box')
+
+        mat_model = box1.model_matrix()
+        loc_model = shader.getUniformLocation("model")
+        glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
+        ModelHelper.render_model('box1')
         
         mat_view = view_matrix(camera_pos, camera_front, camera_up)
         loc_view = shader.getUniformLocation("view")
