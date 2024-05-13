@@ -29,23 +29,28 @@ mouse_sensitivity = 0.3
 def key_event(window, key, scancode, action, mods):
     global camera_pos, camera_front, camera_up, polygonal_mode, camera_speed
            
-    if key == glfw.KEY_W and (action==1 or action==2):
+    if key == glfw.KEY_W and (action==glfw.PRESS or action==glfw.REPEAT):
         camera_pos += camera_speed * camera_front
     
-    if key == glfw.KEY_S and (action==1 or action==2):
+    if key == glfw.KEY_S and (action==glfw.PRESS or action==glfw.REPEAT):
         camera_pos -= camera_speed * camera_front
     
-    if key == glfw.KEY_A and (action==1 or action==2):
+    if key == glfw.KEY_A and (action==glfw.PRESS or action==glfw.REPEAT):
         camera_pos -= glm.normalize(glm.cross(camera_front, camera_up)) * camera_speed
         
-    if key == glfw.KEY_D and (action==1 or action==2):
+    if key == glfw.KEY_D and (action==glfw.PRESS or action==glfw.REPEAT):
         camera_pos += glm.normalize(glm.cross(camera_front, camera_up)) * camera_speed
         
-    if key == glfw.KEY_P and action==1:
+    if key == glfw.KEY_P and action==glfw.PRESS:
         polygonal_mode= not polygonal_mode
 
-    if key == glfw.KEY_Q and (action==1 or action==2):
+    if key == glfw.KEY_Q and action==glfw.PRESS:
         glfw.set_window_should_close(window, True)
+    
+    if key == glfw.KEY_LEFT_SHIFT and action==glfw.PRESS:
+        camera_speed = 1.0
+    if key == glfw.KEY_LEFT_SHIFT and action==glfw.RELEASE:
+        camera_speed = 0.2
 
 def mouse_event(window, xpos, ypos):
     global first_mouse, camera_front, yaw, pitch, lastX, lastY, mouse_sensitivity
@@ -78,25 +83,10 @@ def view_matrix(camera_position, camera_front, camera_up):
     mat_view = glm.lookAt(camera_position, camera_position + camera_front, camera_up);
     return mat_view
 
-def projection_matrix():
-    global height, width, inc_fov, inc_near, inc_far
+def projection_matrix(height, width):
     # perspective parameters: fovy, aspect, near, far
     mat_projection = glm.perspective(glm.radians(45.0), width/height, 0.1, 1000.0)
     return mat_projection
-
-def model_matrix(angle, r_x, r_y, r_z, t_x, t_y, t_z, s_x, s_y, s_z):
-    angle = math.radians(angle)
-    
-    # Identity matrix
-    matrix_transform = glm.mat4(1.0)
-
-    matrix_transform = glm.translate(matrix_transform, glm.vec3(t_x, t_y, t_z))    
-    
-    matrix_transform = glm.rotate(matrix_transform, angle, glm.vec3(r_x, r_y, r_z))
-    
-    matrix_transform = glm.scale(matrix_transform, glm.vec3(s_x, s_y, s_z))
-    
-    return matrix_transform
 
 def main():
     global width, height, camera_pos, camera_front, camera_up, polygonal_mode, lastX, lastY
@@ -201,7 +191,7 @@ def main():
         loc_view = shader.getUniformLocation("view")
         glUniformMatrix4fv(loc_view, 1, GL_FALSE, glm.value_ptr(mat_view))
 
-        mat_projection = projection_matrix()
+        mat_projection = projection_matrix(height, width)
         loc_projection = shader.getUniformLocation("projection")
         glUniformMatrix4fv(loc_projection, 1, GL_FALSE, glm.value_ptr(mat_projection))  
         
