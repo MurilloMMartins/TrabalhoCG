@@ -138,19 +138,25 @@ def main():
     textures = glGenTextures(texture_amount)
 
     # Loading Models
-    box = Model('box', 'crate/Crate1.obj',['crate/crate_1.jpg'], [0])
+    box = Model('box', 'skybox/skybox.obj',['skybox/left.jpg', 'skybox/front.jpg', 'skybox/right.jpg', 'skybox/back.jpg', 'skybox/bottom.jpg', 'skybox/top.jpg'], [0,1,2,3,4,5])
     box.position = glm.vec3(0.0, -1.0, 0.0)
     box.rotation = glm.vec3(0.0, 0.0, 1.0)
-    box.scale = glm.vec3(1.0, 1.0, 1.0)
+    box.scale = glm.vec3(500.0, 500.0, 500.0)
 
-    tree = Model('tree', 'references/arvore/arvore10.obj',['references/arvore/bark_0021.jpg', 'references/arvore/DB2X2_L01.png'], [1,2])
+    tree = Model('tree', 'references/arvore/arvore10.obj',['references/arvore/bark_0021.jpg', 'references/arvore/DB2X2_L01.png'], [6,7])
     tree.position = glm.vec3(0.0, -1.0, 3.0)
     tree.rotation = glm.vec3(0.0, 0.0, 1.0)
     tree.scale = glm.vec3(1.0, 1.0, 1.0)
 
+    road = Model('road', 'road/road/road.obj', ['road/road/road-texture.jpg'], [8])
+    road.position = glm.vec3(0.0, -1.0, 5.0)
+    road.rotation = glm.vec3(0.0, 0.0, 1.0)
+    road.scale = glm.vec3(1.0,1.0,1.0)
+
     # Loading all models into a helper
     ModelHelper.attach_model(box)
     ModelHelper.attach_model(tree)
+    ModelHelper.attach_model(road)
     ModelHelper.upload_models(shader)
 
     # Setting GLFW callbacks
@@ -186,6 +192,12 @@ def main():
         loc_model = shader.getUniformLocation("model")
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
         ModelHelper.render_model('tree', GL_TRIANGLES)
+
+        road.position = glm.vec3(0.0, -1.0, 5.0)
+        mat_model = road.model_matrix()
+        loc_model = shader.getUniformLocation("model")
+        glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
+        ModelHelper.render_model('road', GL_QUADS)
         
         mat_view = view_matrix(camera_pos, camera_front, camera_up)
         loc_view = shader.getUniformLocation("view")

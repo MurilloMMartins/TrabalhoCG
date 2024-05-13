@@ -29,7 +29,6 @@ class ModelHelper():
         init = len(vertices_list)
         for face in modelo['faces']:
             if material != face[2]:
-                print("novo material")
                 material = face[2]
                 vertex_range.append((init, len(vertices_list)))
                 init = len(vertices_list)
