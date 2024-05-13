@@ -7,24 +7,25 @@ import math
 from model import Model
 from shader import Shader
 from model_helper import ModelHelper
+from camera import Camera
 
 height = 1600
 width = 1200
 
-camera_pos   = glm.vec3(0.0,  0.0,  1.0);
-camera_front = glm.vec3(0.0,  0.0, -1.0);
-camera_up    = glm.vec3(0.0,  1.0,  0.0);
+camera_pos   = glm.vec3(0.0,  0.0,  1.0)
+camera_front = glm.vec3(0.0,  0.0, -1.0)
+camera_up    = glm.vec3(0.0,  1.0,  0.0)
+
+camera_speed = 0.2
+mouse_sensitivity = 0.3
+camera = Camera(mouse_sensitivity, camera_speed)
 
 polygonal_mode = False
 
 first_mouse = True
-yaw = -90.0 
-pitch = 0.0
 lastX =  width/2
 lastY =  height/2
 
-camera_speed = 0.2
-mouse_sensitivity = 0.3
 
 def resize_event(window, new_width, new_height):
     global width, height
@@ -33,19 +34,19 @@ def resize_event(window, new_width, new_height):
     glViewport(0, 0, new_width, new_height)
 
 def key_event(window, key, scancode, action, mods):
-    global camera_pos, camera_front, camera_up, polygonal_mode, camera_speed
+    global camera, polygonal_mode, camera_speed
            
     if key == glfw.KEY_W and (action==glfw.PRESS or action==glfw.REPEAT):
-        camera_pos += camera_speed * camera_front
+        camera.position += camera.speed * camera.front
     
     if key == glfw.KEY_S and (action==glfw.PRESS or action==glfw.REPEAT):
-        camera_pos -= camera_speed * camera_front
+        camera.position -= camera.speed * camera.front
     
     if key == glfw.KEY_A and (action==glfw.PRESS or action==glfw.REPEAT):
-        camera_pos -= glm.normalize(glm.cross(camera_front, camera_up)) * camera_speed
+        camera.position -= glm.normalize(glm.cross(camera.front, camera.up)) * camera.speed
         
     if key == glfw.KEY_D and (action==glfw.PRESS or action==glfw.REPEAT):
-        camera_pos += glm.normalize(glm.cross(camera_front, camera_up)) * camera_speed
+        camera.position += glm.normalize(glm.cross(camera.front, camera.up)) * camera.speed
         
     if key == glfw.KEY_P and action==glfw.PRESS:
         polygonal_mode= not polygonal_mode
@@ -54,12 +55,12 @@ def key_event(window, key, scancode, action, mods):
         glfw.set_window_should_close(window, True)
     
     if key == glfw.KEY_LEFT_SHIFT and action==glfw.PRESS:
-        camera_speed = 1.0
+        camera.speed = 1.0
     if key == glfw.KEY_LEFT_SHIFT and action==glfw.RELEASE:
-        camera_speed = 0.2
+        camera.speed = 0.2
 
 def mouse_event(window, xpos, ypos):
-    global first_mouse, camera_front, yaw, pitch, lastX, lastY, mouse_sensitivity
+    global first_mouse, camera_front, lastX, lastY, mouse_sensitivity
     if first_mouse:
         lastX = xpos
         lastY = ypos
@@ -70,24 +71,10 @@ def mouse_event(window, xpos, ypos):
     lastX = xpos
     lastY = ypos
 
-    xoffset *= mouse_sensitivity
-    yoffset *= mouse_sensitivity
+    camera.update_front(xoffset, yoffset)
 
-    yaw += xoffset;
-    pitch += yoffset;
-    
-    if pitch >= 90.0: pitch = 90.0
-    if pitch <= -90.0: pitch = -90.0
-
-    front = glm.vec3()
-    front.x = math.cos(glm.radians(yaw)) * math.cos(glm.radians(pitch))
-    front.y = math.sin(glm.radians(pitch))
-    front.z = math.sin(glm.radians(yaw)) * math.cos(glm.radians(pitch))
-    camera_front = glm.normalize(front)
-
-def view_matrix(camera_position, camera_front, camera_up):
-    mat_view = glm.lookAt(camera_position, camera_position + camera_front, camera_up);
-    return mat_view
+def view_matrix(camera):
+    return camera.look_at()
 
 def projection_matrix(height, width):
     # perspective parameters: fovy, aspect, near, far
@@ -95,7 +82,7 @@ def projection_matrix(height, width):
     return mat_projection
 
 def main():
-    global width, height, camera_pos, camera_front, camera_up, polygonal_mode, lastX, lastY
+    global width, height, polygonal_mode, lastX, lastY, camera
 
     # Initializing GLFW window
     glfw.init()
@@ -142,7 +129,6 @@ def main():
     glEnable(GL_TEXTURE_2D)
     texture_amount = 10
     textures = glGenTextures(texture_amount)
-    print(textures)
 
     # Loading Models
     box = Model('box', 'crate/Crate1.obj',['crate/crate_1.jpg'], [0])
@@ -195,7 +181,7 @@ def main():
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
         ModelHelper.render_model('tree', GL_TRIANGLES)
         
-        mat_view = view_matrix(camera_pos, camera_front, camera_up)
+        mat_view = view_matrix(camera)
         loc_view = shader.getUniformLocation("view")
         glUniformMatrix4fv(loc_view, 1, GL_FALSE, glm.value_ptr(mat_view))
 
