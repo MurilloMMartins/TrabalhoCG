@@ -26,6 +26,12 @@ lastY =  height/2
 camera_speed = 0.2
 mouse_sensitivity = 0.3
 
+def resize_event(window, new_width, new_height):
+    global width, height
+    width = new_width
+    height = new_height
+    glViewport(0, 0, new_width, new_height)
+
 def key_event(window, key, scancode, action, mods):
     global camera_pos, camera_front, camera_up, polygonal_mode, camera_speed
            
@@ -136,6 +142,7 @@ def main():
     glEnable(GL_TEXTURE_2D)
     texture_amount = 10
     textures = glGenTextures(texture_amount)
+    print(textures)
 
     # Loading Models
     box = Model('box', 'crate/Crate1.obj',['crate/crate_1.jpg'], [0])
@@ -156,6 +163,7 @@ def main():
     # Setting GLFW callbacks
     glfw.set_key_callback(window,key_event)
     glfw.set_cursor_pos_callback(window, mouse_event)
+    glfw.set_framebuffer_size_callback(window, resize_event)
 
     # Starting window
     glfw.show_window(window)
