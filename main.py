@@ -103,7 +103,7 @@ def main():
     glfw.window_hint(glfw.VISIBLE, glfw.FALSE);
     window = glfw.create_window(width, height, "TrabalhoCG", None, None)
     glfw.make_context_current(window)
-    glfw.set_input_mode(window, glfw.CURSOR, glfw.CURSOR_HIDDEN)
+    glfw.set_input_mode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
 
     # Initialing OpenGL program
     vertex_code = """
@@ -188,12 +188,12 @@ def main():
         mat_model = box.model_matrix()
         loc_model = shader.getUniformLocation("model")
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
-        ModelHelper.render_model('box')
+        ModelHelper.render_model('box', GL_QUADS)
 
         mat_model = box1.model_matrix()
         loc_model = shader.getUniformLocation("model")
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
-        ModelHelper.render_model('box1')
+        ModelHelper.render_model('box1', GL_TRIANGLES)
         
         mat_view = view_matrix(camera_pos, camera_front, camera_up)
         loc_view = shader.getUniformLocation("view")

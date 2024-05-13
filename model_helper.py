@@ -8,11 +8,11 @@ class ModelHelper():
     uploaded_objects = {}
 
     @classmethod
-    def render_model(cls, model_name):
+    def render_model(cls, model_name, primitive):
         model = cls.uploaded_objects[model_name]
 
         glBindTexture(GL_TEXTURE_2D, model['texture_id'])
-        glDrawArrays(GL_TRIANGLES, model['vertex_range'][0], model['vertex_range'][1] - model['vertex_range'][0])
+        glDrawArrays(primitive, model['vertex_range'][0], model['vertex_range'][1] - model['vertex_range'][0])
 
     @classmethod
     def attach_model(cls, model: Model):
