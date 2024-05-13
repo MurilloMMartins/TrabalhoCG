@@ -10,25 +10,36 @@ class ModelHelper():
     @classmethod
     def render_model(cls, model_name, primitive):
         model = cls.uploaded_objects[model_name]
-
-        glBindTexture(GL_TEXTURE_2D, model['texture_id'])
-        glDrawArrays(primitive, model['vertex_range'][0], model['vertex_range'][1] - model['vertex_range'][0])
+        for index, vertex_range in enumerate(model['vertex_range']):
+            glBindTexture(GL_TEXTURE_2D, model['texture_id'][index])
+            glDrawArrays(primitive, vertex_range[0], vertex_range[1] - vertex_range[0])
 
     @classmethod
     def attach_model(cls, model: Model):
-        vertice_range = cls.__add_to_vertices_list(model.model, cls.vertices_list)
+        vertex_range = cls.__add_to_vertices_list(model.model, cls.vertices_list)
         cls.__add_to_texture_list(model.model, cls.textures_coord_list)
-        obj = {'vertex_range': vertice_range, 'texture_id': model.texture_id}
+        obj = {'vertex_range': vertex_range, 'texture_id': model.texture_id}
         cls.uploaded_objects[model.name] = obj
 
     @classmethod
     def __add_to_vertices_list(cls, modelo, vertices_list):
+        vertex_range = []
+        material = modelo['faces'][0][2]
+
         init = len(vertices_list)
         for face in modelo['faces']:
+            if material != face[2]:
+                print("novo material")
+                material = face[2]
+                vertex_range.append((init, len(vertices_list)))
+                init = len(vertices_list)
+
             for vertice_id in face[0]:
                 vertices_list.append(modelo['vertices'][vertice_id-1])
-        print(f"Foram adicionados {len(vertices_list) - init} vértices ({init}, {len(vertices_list)})")
-        return (init, len(vertices_list))
+
+        vertex_range.append((init, len(vertices_list)))
+        print(f"Foram adicionados {len(vertices_list) - init} vértices, range: {vertex_range}")
+        return vertex_range
 
     @classmethod
     def __add_to_texture_list(cls, modelo, textures_coord_list):

@@ -138,19 +138,19 @@ def main():
     textures = glGenTextures(texture_amount)
 
     # Loading Models
-    box = Model('box', 'crate/Crate1.obj','crate/crate_1.jpg', 0)
+    box = Model('box', 'crate/Crate1.obj',['crate/crate_1.jpg'], [0])
     box.position = glm.vec3(0.0, -1.0, 0.0)
     box.rotation = glm.vec3(0.0, 0.0, 1.0)
     box.scale = glm.vec3(1.0, 1.0, 1.0)
 
-    box1 = Model('box1', 'references/caixa/caixa.obj','references/caixa/caixa2.jpg', 1)
-    box1.position = glm.vec3(0.0, -1.0, 3.0)
-    box1.rotation = glm.vec3(0.0, 0.0, 1.0)
-    box1.scale = glm.vec3(1.0, 1.0, 1.0)
+    tree = Model('tree', 'references/arvore/arvore10.obj',['references/arvore/bark_0021.jpg', 'references/arvore/DB2X2_L01.png'], [1,2])
+    tree.position = glm.vec3(0.0, -1.0, 3.0)
+    tree.rotation = glm.vec3(0.0, 0.0, 1.0)
+    tree.scale = glm.vec3(1.0, 1.0, 1.0)
 
     # Loading all models into a helper
     ModelHelper.attach_model(box)
-    ModelHelper.attach_model(box1)
+    ModelHelper.attach_model(tree)
     ModelHelper.upload_models(shader)
 
     # Setting GLFW callbacks
@@ -182,10 +182,10 @@ def main():
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
         ModelHelper.render_model('box', GL_QUADS)
 
-        mat_model = box1.model_matrix()
+        mat_model = tree.model_matrix()
         loc_model = shader.getUniformLocation("model")
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
-        ModelHelper.render_model('box1', GL_TRIANGLES)
+        ModelHelper.render_model('tree', GL_TRIANGLES)
         
         mat_view = view_matrix(camera_pos, camera_front, camera_up)
         loc_view = shader.getUniformLocation("view")

@@ -4,11 +4,13 @@ import glm
 import math
 
 class Model:
-    def __init__(self, name, model_path, texture_path, texture_id) -> None:
+    def __init__(self, name, model_path, texture_paths, texture_ids) -> None:
         self.name = name
-        self.texture_id = texture_id
+        self.texture_id = texture_ids
         self.model = self.__load_model_from_file(model_path)
-        self.__load_texture_from_file(texture_id, texture_path)
+        
+        for index, texture in enumerate(texture_paths):
+            self.__load_texture_from_file(texture_ids[index], texture)
         
         self.position = glm.vec3(0.0, 0.0, 0.0)
         self.rotation = glm.vec3(0.0, 0.0, 0.0)
@@ -16,7 +18,6 @@ class Model:
         self.angle    = 0
 
     def __load_model_from_file(self, filename):
-        objects = {}
         vertices = []
         texture_coords = []
         faces = []
