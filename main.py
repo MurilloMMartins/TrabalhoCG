@@ -44,6 +44,9 @@ def key_event(window, key, scancode, action, mods):
     if key == glfw.KEY_P and action==1:
         polygonal_mode= not polygonal_mode
 
+    if key == glfw.KEY_Q and (action==1 or action==2):
+        glfw.set_window_should_close(window, True)
+
 def mouse_event(window, xpos, ypos):
     global first_mouse, camera_front, yaw, pitch, lastX, lastY, mouse_sensitivity
     if first_mouse:
@@ -158,7 +161,6 @@ def main():
     # Loading all models into a helper
     ModelHelper.attach_model(box)
     ModelHelper.attach_model(box1)
-    print(len(ModelHelper.vertices_list))
     ModelHelper.upload_models(shader)
 
     # Setting GLFW callbacks
