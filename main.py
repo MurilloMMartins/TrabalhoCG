@@ -96,7 +96,7 @@ def main():
         uniform mat4 model;
         uniform mat4 view;
         uniform mat4 projection;
-        uniform float texture_size;
+        uniform vec2 texture_size;
         
         void main(){
             gl_Position = projection * view * model * vec4(position,1.0);
@@ -134,19 +134,20 @@ def main():
     box.scale = glm.vec3(1000.0, 1000.0, 1000.0)
 
     tree = Model('tree', 'references/arvore/arvore10.obj',['references/arvore/bark_0021.jpg', 'references/arvore/DB2X2_L01.png'], [6,7])
-    tree.position = glm.vec3(5.0, -2.8, 3.2)
+    tree.position = glm.vec3(7.0, -2.8, 3.2)
     tree.rotation = glm.vec3(0.0, 0.0, 1.0)
-    tree.scale = glm.vec3(1.0, 1.0, 1.0)
+    tree.scale = glm.vec3(2.5, 2.5, 2.5)
 
     road = Model('road', 'road/road/road.obj', ['road/road/road-texture.jpg'], [8])
     road.position = glm.vec3(0.0, -2.5, 10.0)
-    road.rotation = glm.vec3(0.0, 0.0, 1.0)
-    road.scale = glm.vec3(1.0,1.0,1.0)
+    road.rotation = glm.vec3(0.0, 1.0, 0.0)
+    road.scale = glm.vec3(1.0,1,100.0)
+    road.angle = 90
 
     terrain = Model('terrain', 'ground/terrain.obj', ['ground/aerial_grass_rock_diff_1k.jpg'], [9])
-    terrain.position = glm.vec3(0.0, -10.0, 0.0)
+    terrain.position = glm.vec3(0.0, -2.875, 0.0)
     terrain.rotation = glm.vec3(1.0, 0.0, 0.0)
-    terrain.scale = glm.vec3(200.0,200.0,20.0)
+    terrain.scale = glm.vec3(200.0,200.0,1.0)
     terrain.angle = -90.0
 
     storage = Model('storage', 'storage/Farm_free_obj.obj', ['storage/textures/Farm_Free_BaseColor.png'], [10])
@@ -160,7 +161,7 @@ def main():
     human.scale = glm.vec3(0.015,0.015,0.015)
 
     hay_cart = Model('haycart', 'hay_cart/hay_cart.obj', ['hay_cart/hay_cart.png'], [12])
-    hay_cart.position = glm.vec3(-9.0, -3.0, 3.2)
+    hay_cart.position = glm.vec3(-9.0, -2.5, 3.2)
     hay_cart.rotation = glm.vec3(0.0, 0.0, 1.0)
     hay_cart.scale = glm.vec3(1.0, 1.0, 1.0)
 
@@ -227,7 +228,7 @@ def main():
         ModelHelper.render_model('storage', GL_QUADS)
 
         loc = shader.getUniformLocation("texture_size")
-        glUniform1f(loc, 200.0)
+        glUniform2fv(loc, 1, [200.0, 200.0])
 
         mat_model = terrain.model_matrix()
         loc_model = shader.getUniformLocation("model")
@@ -235,12 +236,15 @@ def main():
         ModelHelper.render_model('terrain', GL_TRIANGLES)
 
         loc = shader.getUniformLocation("texture_size")
-        glUniform1f(loc, 1.0)
+        glUniform2fv(loc, 1, [1.0, 100.0])
 
         mat_model = road.model_matrix()
         loc_model = shader.getUniformLocation("model")
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
         ModelHelper.render_model('road', GL_QUADS)
+
+        loc = shader.getUniformLocation("texture_size")
+        glUniform2fv(loc, 1, [1.0,1.0])
 
         mat_model = tree.model_matrix()
         loc_model = shader.getUniformLocation("model")
