@@ -139,7 +139,7 @@ def main():
     tree.scale = glm.vec3(1.0, 1.0, 1.0)
 
     road = Model('road', 'road/road/road.obj', ['road/road/road-texture.jpg'], [8])
-    road.position = glm.vec3(0.0, -2.5, 50.0)
+    road.position = glm.vec3(0.0, -2.5, 10.0)
     road.rotation = glm.vec3(0.0, 0.0, 1.0)
     road.scale = glm.vec3(1.0,1.0,1.0)
 
@@ -155,9 +155,19 @@ def main():
     storage.scale = glm.vec3(1.0,1.0,1.0)
 
     human = Model('human', 'human/human.obj', ['human/human.jpg'], [11])
-    storage.position = glm.vec3(0.0, -2.5, 0.0)
-    storage.rotation = glm.vec3(0.0, 0.0, 1.0)
-    storage.scale = glm.vec3(1.0,1.0,1.0)
+    human.position = glm.vec3(0.0, -2.5, 0.0)
+    human.rotation = glm.vec3(0.0, 0.0, 1.0)
+    human.scale = glm.vec3(0.015,0.015,0.015)
+
+    hay_cart = Model('haycart', 'hay_cart/hay_cart.obj', ['hay_cart/hay_cart.png'], [12])
+    hay_cart.position = glm.vec3(-9.0, -3.0, 3.2)
+    hay_cart.rotation = glm.vec3(0.0, 0.0, 1.0)
+    hay_cart.scale = glm.vec3(1.0, 1.0, 1.0)
+
+    dog = Model('dog', 'dog/dog.obj', ['dog/dog.png'], [13])
+    dog.position = glm.vec3(0.4, -2.5, 0.0)
+    dog.rotation = glm.vec3(0.0, 0.0, 1.0)
+    dog.scale = glm.vec3(1.0,1.0,1.0)
 
     # Loading all models into a helper
     ModelHelper.attach_model(box)
@@ -166,6 +176,8 @@ def main():
     ModelHelper.attach_model(terrain)
     ModelHelper.attach_model(road)
     ModelHelper.attach_model(human)
+    ModelHelper.attach_model(hay_cart)
+    ModelHelper.attach_model(dog)
 
     ModelHelper.upload_models(shader)
 
@@ -238,8 +250,18 @@ def main():
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
         ModelHelper.render_model('human', GL_TRIANGLES)
         
+        mat_model = hay_cart.model_matrix()
+        loc_model = shader.getUniformLocation("model")
+        glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
+        ModelHelper.render_model('haycart', GL_TRIANGLES)
 
-        print(human.position)
+        mat_model = dog.model_matrix()
+        loc_model = shader.getUniformLocation("model")
+        glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
+        ModelHelper.render_model('dog', GL_TRIANGLES)
+
+
+        print(dog.position)
         glfw.swap_buffers(window)
 
     glfw.terminate()
