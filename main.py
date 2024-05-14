@@ -74,7 +74,7 @@ def view_matrix(camera):
 
 def projection_matrix(height, width):
     # perspective parameters: fovy, aspect, near, far
-    mat_projection = glm.perspective(glm.radians(45.0), width/height, 0.1, 1000.0)
+    mat_projection = glm.perspective(glm.radians(45.0), width/height, 0.1, 10000.0)
     return mat_projection
 
 def main():
@@ -95,11 +95,12 @@ def main():
                 
         uniform mat4 model;
         uniform mat4 view;
-        uniform mat4 projection;        
+        uniform mat4 projection;
+        uniform float texture_size;
         
         void main(){
             gl_Position = projection * view * model * vec4(position,1.0);
-            out_texture = vec2(texture_coord);
+            out_texture = vec2(texture_coord*texture_size);
         }
         """
 
@@ -128,12 +129,12 @@ def main():
 
     # Loading Models
     box = Model('box', 'skybox/skybox.obj',['skybox/left.jpg', 'skybox/front.jpg', 'skybox/right.jpg', 'skybox/back.jpg', 'skybox/bottom.jpg', 'skybox/top.jpg'], [0,1,2,3,4,5])
-    box.position = glm.vec3(0.0, -1.0, 0.0)
+    box.position = glm.vec3(0.0, 0.0, 0.0)
     box.rotation = glm.vec3(0.0, 0.0, 1.0)
-    box.scale = glm.vec3(500.0, 500.0, 500.0)
+    box.scale = glm.vec3(1000.0, 1000.0, 1000.0)
 
     tree = Model('tree', 'references/arvore/arvore10.obj',['references/arvore/bark_0021.jpg', 'references/arvore/DB2X2_L01.png'], [6,7])
-    tree.position = glm.vec3(0.0, -1.0, 3.0)
+    tree.position = glm.vec3(5.0, -2.8, 3.2)
     tree.rotation = glm.vec3(0.0, 0.0, 1.0)
     tree.scale = glm.vec3(1.0, 1.0, 1.0)
 
@@ -143,12 +144,13 @@ def main():
     # road.scale = glm.vec3(1.0,1.0,1.0)
 
     terrain = Model('terrain', 'ground/terrain.obj', ['ground/aerial_grass_rock_diff_1k.jpg'], [9])
-    terrain.position = glm.vec3(0.0, -1.0, -100.0)
-    terrain.rotation = glm.vec3(0.0, 0.0, 1.0)
-    terrain.scale = glm.vec3(-1.0,-1.0,1.0)
+    terrain.position = glm.vec3(0.0, -10.0, 0.0)
+    terrain.rotation = glm.vec3(1.0, 0.0, 0.0)
+    terrain.scale = glm.vec3(200.0,200.0,20.0)
+    terrain.angle = -90.0
 
     storage = Model('storage', 'storage/Farm_free_obj.obj', ['storage/textures/Farm_Free_BaseColor.png'], [10])
-    storage.position = glm.vec3(0.0, -1.0, -100.0)
+    storage.position = glm.vec3(0.0, -2.5, 0.0)
     storage.rotation = glm.vec3(0.0, 0.0, 1.0)
     storage.scale = glm.vec3(1.0,1.0,1.0)
 
@@ -195,17 +197,21 @@ def main():
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
         ModelHelper.render_model('tree', GL_TRIANGLES)
 
-        storage.position = glm.vec3(0.0, -1.0, 5.0)
         mat_model = storage.model_matrix()
         loc_model = shader.getUniformLocation("model")
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
         ModelHelper.render_model('storage', GL_QUADS)
 
-        terrain.position = glm.vec3(0.0, -1.0, 10.0)
+        loc = shader.getUniformLocation("texture_size")
+        glUniform1f(loc, 200.0)
+
         mat_model = terrain.model_matrix()
         loc_model = shader.getUniformLocation("model")
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
         ModelHelper.render_model('terrain', GL_TRIANGLES)
+
+        loc = shader.getUniformLocation("texture_size")
+        glUniform1f(loc, 1.0)
         
         mat_view = view_matrix(camera)
         loc_view = shader.getUniformLocation("view")
