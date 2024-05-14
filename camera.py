@@ -11,6 +11,14 @@ class Camera:
         self.pitch = 0.0
         self.yaw = -90.0
 
+    def set_position(self, new_position: glm.vec3):
+        # Stop camera from leaving the skybox
+        new_position.x = min(max(new_position.x, -400), 400)
+        new_position.y = min(max(new_position.y, -400), 400)
+        new_position.z = min(max(new_position.z, -400), 400)
+
+        self.position = new_position
+
     def look_at(self):
         return glm.lookAt(self.position, self.position + self.front, self.up)
     

@@ -33,16 +33,16 @@ def key_event(window, key, scancode, action, mods):
     global camera, polygonal_mode, camera_speed
            
     if key == glfw.KEY_W and (action==glfw.PRESS or action==glfw.REPEAT):
-        camera.position += camera.speed * camera.front
+        camera.set_position(camera.position + (camera.speed * camera.front))
     
     if key == glfw.KEY_S and (action==glfw.PRESS or action==glfw.REPEAT):
-        camera.position -= camera.speed * camera.front
+        camera.set_position(camera.position - (camera.speed * camera.front))
     
     if key == glfw.KEY_A and (action==glfw.PRESS or action==glfw.REPEAT):
-        camera.position -= glm.normalize(glm.cross(camera.front, camera.up)) * camera.speed
+        camera.set_position(camera.position - (glm.normalize(glm.cross(camera.front, camera.up)) * camera.speed))
         
     if key == glfw.KEY_D and (action==glfw.PRESS or action==glfw.REPEAT):
-        camera.position += glm.normalize(glm.cross(camera.front, camera.up)) * camera.speed
+        camera.set_position(camera.position + (glm.normalize(glm.cross(camera.front, camera.up)) * camera.speed))
         
     if key == glfw.KEY_P and action==glfw.PRESS:
         polygonal_mode= not polygonal_mode
