@@ -12,10 +12,6 @@ from camera import Camera
 height = 1600
 width = 1200
 
-camera_pos   = glm.vec3(0.0,  0.0,  1.0)
-camera_front = glm.vec3(0.0,  0.0, -1.0)
-camera_up    = glm.vec3(0.0,  1.0,  0.0)
-
 camera_speed = 0.2
 mouse_sensitivity = 0.3
 camera = Camera(mouse_sensitivity, camera_speed)
@@ -141,15 +137,27 @@ def main():
     tree.rotation = glm.vec3(0.0, 0.0, 1.0)
     tree.scale = glm.vec3(1.0, 1.0, 1.0)
 
-    road = Model('road', 'road/road/road.obj', ['road/road/road-texture.jpg'], [8])
-    road.position = glm.vec3(0.0, -1.0, 5.0)
-    road.rotation = glm.vec3(0.0, 0.0, 1.0)
-    road.scale = glm.vec3(1.0,1.0,1.0)
+    # road = Model('road', 'road/road/road.obj', ['road/road/road-texture.jpg'], [8])
+    # road.position = glm.vec3(0.0, -1.0, 5.0)
+    # road.rotation = glm.vec3(0.0, 0.0, 1.0)
+    # road.scale = glm.vec3(1.0,1.0,1.0)
+
+    terrain = Model('terrain', 'ground/terrain.obj', ['ground/aerial_grass_rock_diff_1k.jpg'], [9])
+    terrain.position = glm.vec3(0.0, -1.0, -100.0)
+    terrain.rotation = glm.vec3(0.0, 0.0, 1.0)
+    terrain.scale = glm.vec3(-1.0,-1.0,1.0)
+
+    storage = Model('storage', 'storage/Farm_free_obj.obj', ['storage/textures/Farm_Free_BaseColor.png'], [10])
+    storage.position = glm.vec3(0.0, -1.0, -100.0)
+    storage.rotation = glm.vec3(0.0, 0.0, 1.0)
+    storage.scale = glm.vec3(1.0,1.0,1.0)
 
     # Loading all models into a helper
     ModelHelper.attach_model(box)
     ModelHelper.attach_model(tree)
-    ModelHelper.attach_model(road)
+    ModelHelper.attach_model(storage)
+    ModelHelper.attach_model(terrain)
+
     ModelHelper.upload_models(shader)
 
     # Setting GLFW callbacks
@@ -166,7 +174,7 @@ def main():
     
     while not glfw.window_should_close(window):
         glfw.poll_events() 
-        
+    
         # Clearing buffers
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glClearColor(1.0, 1.0, 1.0, 1.0)
@@ -187,11 +195,17 @@ def main():
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
         ModelHelper.render_model('tree', GL_TRIANGLES)
 
-        road.position = glm.vec3(0.0, -1.0, 5.0)
-        mat_model = road.model_matrix()
+        storage.position = glm.vec3(0.0, -1.0, 5.0)
+        mat_model = storage.model_matrix()
         loc_model = shader.getUniformLocation("model")
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
-        ModelHelper.render_model('road', GL_QUADS)
+        ModelHelper.render_model('storage', GL_QUADS)
+
+        terrain.position = glm.vec3(0.0, -1.0, 10.0)
+        mat_model = terrain.model_matrix()
+        loc_model = shader.getUniformLocation("model")
+        glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
+        ModelHelper.render_model('terrain', GL_TRIANGLES)
         
         mat_view = view_matrix(camera)
         loc_view = shader.getUniformLocation("view")
