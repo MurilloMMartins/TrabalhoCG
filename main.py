@@ -166,7 +166,7 @@ def main():
 
     dog = Model('dog', 'dog/dog.obj', ['dog/dog.png'], [13])
     dog.position = glm.vec3(0.4, -2.5, 0.0)
-    dog.rotation = glm.vec3(0.0, 0.0, 1.0)
+    dog.rotation = glm.vec3(0.0, 1.0, 0.0)
     dog.scale = glm.vec3(1.0,1.0,1.0)
 
     # Loading all models into a helper
@@ -193,6 +193,8 @@ def main():
     # 3D depth test
     glEnable(GL_DEPTH_TEST)
     
+    theta = 0.0
+    radius = 1.5
     while not glfw.window_should_close(window):
         glfw.poll_events() 
     
@@ -254,6 +256,15 @@ def main():
         loc_model = shader.getUniformLocation("model")
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
         ModelHelper.render_model('haycart', GL_TRIANGLES)
+
+        # Making the dog rotate aroung a circle with a radius
+        dog.position.x = math.sin(theta)*radius
+        dog.position.z = math.cos(theta)*radius
+        dog.angle = 90+math.degrees(theta)
+
+        theta += 0.05
+        if theta > 2*np.pi:
+            theta = 0.0
 
         mat_model = dog.model_matrix()
         loc_model = shader.getUniformLocation("model")
