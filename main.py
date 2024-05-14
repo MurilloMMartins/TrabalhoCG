@@ -128,10 +128,10 @@ def main():
     textures = glGenTextures(texture_amount)
 
     # Loading Models
-    box = Model('box', 'skybox/skybox.obj',['skybox/left.jpg', 'skybox/front.jpg', 'skybox/right.jpg', 'skybox/back.jpg', 'skybox/bottom.jpg', 'skybox/top.jpg'], [0,1,2,3,4,5])
-    box.position = glm.vec3(0.0, 0.0, 0.0)
-    box.rotation = glm.vec3(0.0, 0.0, 1.0)
-    box.scale = glm.vec3(1000.0, 1000.0, 1000.0)
+    skybox = Model('skybox', 'skybox/skybox.obj',['skybox/left.jpg', 'skybox/front.jpg', 'skybox/right.jpg', 'skybox/back.jpg', 'skybox/bottom.jpg', 'skybox/top.jpg'], [0,1,2,3,4,5])
+    skybox.position = glm.vec3(0.0, 0.0, 0.0)
+    skybox.rotation = glm.vec3(0.0, 0.0, 1.0)
+    skybox.scale = glm.vec3(1000.0, 1000.0, 1000.0)
 
     tree = Model('tree', 'references/arvore/arvore10.obj',['references/arvore/bark_0021.jpg', 'references/arvore/DB2X2_L01.png'], [6,7])
     tree.position = glm.vec3(7.0, -2.8, 3.2)
@@ -170,8 +170,18 @@ def main():
     dog.rotation = glm.vec3(0.0, 1.0, 0.0)
     dog.scale = glm.vec3(1.0,1.0,1.0)
 
+    crate = Model('crate', 'crate/Crate1.obj', ['crate/crate_1.jpg'], [14])
+    crate.position = glm.vec3(0.0, -2.15, -0.40)
+    crate.rotation = glm.vec3(0.0, 1.0, 0.0)
+    crate.scale = glm.vec3(0.32, 0.32, 0.32)
+
+    demoman = Model('demoman', 'demomantf2/scene.obj', ['demomantf2/demoman_red.jpg', 'demomantf2/demoman_head.jpg', 'demomantf2/Eye-Blue.jpg'], [15,16,17])
+    demoman.position = glm.vec3(-3.0, -2.7, -10.0)
+    demoman.rotation = glm.vec3(0.0, 1.0, 0.0)
+    demoman.scale = glm.vec3(12.0, 12.0, 12.0)
+
     # Loading all models into a helper
-    ModelHelper.attach_model(box)
+    ModelHelper.attach_model(skybox)
     ModelHelper.attach_model(tree)
     ModelHelper.attach_model(storage)
     ModelHelper.attach_model(terrain)
@@ -179,6 +189,8 @@ def main():
     ModelHelper.attach_model(human)
     ModelHelper.attach_model(hay_cart)
     ModelHelper.attach_model(dog)
+    ModelHelper.attach_model(crate)
+    ModelHelper.attach_model(demoman)
 
     ModelHelper.upload_models(shader)
 
@@ -217,10 +229,10 @@ def main():
         loc_projection = shader.getUniformLocation("projection")
         glUniformMatrix4fv(loc_projection, 1, GL_FALSE, glm.value_ptr(mat_projection))  
 
-        mat_model = box.model_matrix()
+        mat_model = skybox.model_matrix()
         loc_model = shader.getUniformLocation("model")
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
-        ModelHelper.render_model('box', GL_QUADS)
+        ModelHelper.render_model('skybox', GL_QUADS)
 
         mat_model = storage.model_matrix()
         loc_model = shader.getUniformLocation("model")
@@ -275,8 +287,17 @@ def main():
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
         ModelHelper.render_model('dog', GL_TRIANGLES)
 
+        mat_model = crate.model_matrix()
+        loc_model = shader.getUniformLocation("model")
+        glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
+        ModelHelper.render_model('crate', GL_QUADS)
 
-        print(dog.position)
+        demoman.angle += 1
+        mat_model = demoman.model_matrix()
+        loc_model = shader.getUniformLocation("model")
+        glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
+        ModelHelper.render_model('demoman', GL_TRIANGLES)
+
         glfw.swap_buffers(window)
 
     glfw.terminate()
