@@ -138,10 +138,10 @@ def main():
     tree.rotation = glm.vec3(0.0, 0.0, 1.0)
     tree.scale = glm.vec3(1.0, 1.0, 1.0)
 
-    # road = Model('road', 'road/road/road.obj', ['road/road/road-texture.jpg'], [8])
-    # road.position = glm.vec3(0.0, -1.0, 5.0)
-    # road.rotation = glm.vec3(0.0, 0.0, 1.0)
-    # road.scale = glm.vec3(1.0,1.0,1.0)
+    road = Model('road', 'road/road/road.obj', ['road/road/road-texture.jpg'], [8])
+    road.position = glm.vec3(0.0, -2.5, 50.0)
+    road.rotation = glm.vec3(0.0, 0.0, 1.0)
+    road.scale = glm.vec3(1.0,1.0,1.0)
 
     terrain = Model('terrain', 'ground/terrain.obj', ['ground/aerial_grass_rock_diff_1k.jpg'], [9])
     terrain.position = glm.vec3(0.0, -10.0, 0.0)
@@ -154,11 +154,18 @@ def main():
     storage.rotation = glm.vec3(0.0, 0.0, 1.0)
     storage.scale = glm.vec3(1.0,1.0,1.0)
 
+    human = Model('human', 'human/human.obj', ['human/human.jpg'], [11])
+    storage.position = glm.vec3(0.0, -2.5, 0.0)
+    storage.rotation = glm.vec3(0.0, 0.0, 1.0)
+    storage.scale = glm.vec3(1.0,1.0,1.0)
+
     # Loading all models into a helper
     ModelHelper.attach_model(box)
     ModelHelper.attach_model(tree)
     ModelHelper.attach_model(storage)
     ModelHelper.attach_model(terrain)
+    ModelHelper.attach_model(road)
+    ModelHelper.attach_model(human)
 
     ModelHelper.upload_models(shader)
 
@@ -216,11 +223,23 @@ def main():
         loc = shader.getUniformLocation("texture_size")
         glUniform1f(loc, 1.0)
 
+        mat_model = road.model_matrix()
+        loc_model = shader.getUniformLocation("model")
+        glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
+        ModelHelper.render_model('road', GL_QUADS)
+
         mat_model = tree.model_matrix()
         loc_model = shader.getUniformLocation("model")
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
         ModelHelper.render_model('tree', GL_TRIANGLES)
         
+        mat_model = human.model_matrix()
+        loc_model = shader.getUniformLocation("model")
+        glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
+        ModelHelper.render_model('human', GL_TRIANGLES)
+        
+
+        print(human.position)
         glfw.swap_buffers(window)
 
     glfw.terminate()
