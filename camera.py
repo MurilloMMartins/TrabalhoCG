@@ -14,7 +14,7 @@ class Camera:
     def set_position(self, new_position: glm.vec3):
         # Stop camera from leaving the skybox
         new_position.x = min(max(new_position.x, -400), 400)
-        new_position.y = min(max(new_position.y, -400), 400)
+        new_position.y = min(max(new_position.y, -2), 400)
         new_position.z = min(max(new_position.z, -400), 400)
 
         self.position = new_position
@@ -38,4 +38,10 @@ class Camera:
         new_front.x = math.cos(glm.radians(self.yaw)) * math.cos(glm.radians(self.pitch))
         new_front.y = math.sin(glm.radians(self.pitch))
         new_front.z = math.sin(glm.radians(self.yaw)) * math.cos(glm.radians(self.pitch))
+
+        # Prevent division by 0
+        if abs(new_front.y) <= 0.001: new_front.y = 0.001
+        if abs(new_front.z) <= 0.001: new_front.z = 0.001
+        if abs(new_front.x) <= 0.001: new_front.x = 0.001
+
         self.front = glm.normalize(new_front)
