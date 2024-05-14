@@ -187,15 +187,18 @@ def main():
         if polygonal_mode==False:
             glPolygonMode(GL_FRONT_AND_BACK,GL_FILL)
 
+        mat_view = view_matrix(camera)
+        loc_view = shader.getUniformLocation("view")
+        glUniformMatrix4fv(loc_view, 1, GL_FALSE, glm.value_ptr(mat_view))
+
+        mat_projection = projection_matrix(height, width)
+        loc_projection = shader.getUniformLocation("projection")
+        glUniformMatrix4fv(loc_projection, 1, GL_FALSE, glm.value_ptr(mat_projection))  
+
         mat_model = box.model_matrix()
         loc_model = shader.getUniformLocation("model")
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
         ModelHelper.render_model('box', GL_QUADS)
-
-        mat_model = tree.model_matrix()
-        loc_model = shader.getUniformLocation("model")
-        glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
-        ModelHelper.render_model('tree', GL_TRIANGLES)
 
         mat_model = storage.model_matrix()
         loc_model = shader.getUniformLocation("model")
@@ -212,14 +215,11 @@ def main():
 
         loc = shader.getUniformLocation("texture_size")
         glUniform1f(loc, 1.0)
-        
-        mat_view = view_matrix(camera)
-        loc_view = shader.getUniformLocation("view")
-        glUniformMatrix4fv(loc_view, 1, GL_FALSE, glm.value_ptr(mat_view))
 
-        mat_projection = projection_matrix(height, width)
-        loc_projection = shader.getUniformLocation("projection")
-        glUniformMatrix4fv(loc_projection, 1, GL_FALSE, glm.value_ptr(mat_projection))  
+        mat_model = tree.model_matrix()
+        loc_model = shader.getUniformLocation("model")
+        glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
+        ModelHelper.render_model('tree', GL_TRIANGLES)
         
         glfw.swap_buffers(window)
 
