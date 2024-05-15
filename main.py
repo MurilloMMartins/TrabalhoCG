@@ -21,6 +21,7 @@ polygonal_mode = False
 first_mouse = True
 lastX =  width/2
 lastY =  height/2
+scale = 12.0
 
 
 def resize_event(window, new_width, new_height):
@@ -30,7 +31,7 @@ def resize_event(window, new_width, new_height):
     glViewport(0, 0, new_width, new_height)
 
 def key_event(window, key, scancode, action, mods):
-    global camera, polygonal_mode, camera_speed
+    global camera, polygonal_mode, camera_speed, scale
            
     if key == glfw.KEY_W and (action==glfw.PRESS or action==glfw.REPEAT):
         camera.set_position(camera.position + (camera.speed * camera.front))
@@ -55,6 +56,12 @@ def key_event(window, key, scancode, action, mods):
     if key == glfw.KEY_LEFT_SHIFT and action==glfw.RELEASE:
         camera.speed = 0.2
 
+    if key == glfw.KEY_E and (action==glfw.PRESS or action==glfw.REPEAT):
+        scale += 0.1
+
+    if key == glfw.KEY_R and (action==glfw.PRESS or action==glfw.REPEAT):
+        scale -= 0.1
+
 def mouse_event(window, xpos, ypos):
     global first_mouse, camera_front, lastX, lastY, mouse_sensitivity
     if first_mouse:
@@ -78,7 +85,7 @@ def projection_matrix(height, width):
     return mat_projection
 
 def main():
-    global width, height, polygonal_mode, lastX, lastY, camera
+    global width, height, polygonal_mode, lastX, lastY, camera, scale
 
     # Initializing GLFW window
     glfw.init()
@@ -293,6 +300,7 @@ def main():
         ModelHelper.render_model('crate', GL_QUADS)
 
         demoman.angle += 1
+        demoman.scale = glm.vec3(scale, scale, scale)
         mat_model = demoman.model_matrix()
         loc_model = shader.getUniformLocation("model")
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
