@@ -1,7 +1,7 @@
 from OpenGL.GL import *
 
 class Shader:
-    __program = None
+    program = None
 
     def __init__(self, vertex_code:str, fragment_code:str) -> None:
         # Request a program and shader slots from GPU
@@ -36,13 +36,13 @@ class Shader:
             print(glGetProgramInfoLog(program))
             raise RuntimeError('Linking error')
         
-        self.__program = program
+        self.program = program
 
     def useProgram(self) -> None:
-        glUseProgram(self.__program)
+        glUseProgram(self.program)
 
     def getAttributeLocation(self, attribute:str) -> int:
-        return glGetAttribLocation(self.__program, attribute)
+        return glGetAttribLocation(self.program, attribute)
     
     def getUniformLocation(self, uniform:str) -> int:
-        return glGetUniformLocation(self.__program, uniform)
+        return glGetUniformLocation(self.program, uniform)

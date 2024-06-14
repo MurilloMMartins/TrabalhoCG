@@ -5,6 +5,7 @@ import numpy as np
 class ModelHelper():
     vertices_list = []    
     textures_coord_list = []
+    normals_list = []
     uploaded_objects = {}
 
     @classmethod
@@ -18,18 +19,19 @@ class ModelHelper():
     def attach_model(cls, model: Model):
         vertex_range = cls.__add_to_vertices_list(model.model, cls.vertices_list)
         cls.__add_to_texture_list(model.model, cls.textures_coord_list)
+        cls._add_to_normals_list(model.model, cls.normals_list)
         obj = {'vertex_range': vertex_range, 'texture_id': model.texture_id}
         cls.uploaded_objects[model.name] = obj
 
     @classmethod
     def __add_to_vertices_list(cls, modelo, vertices_list):
         vertex_range = []
-        material = modelo['faces'][0][2]
+        material = modelo['faces'][0][3]
 
         init = len(vertices_list)
         for face in modelo['faces']:
-            if material != face[2]:
-                material = face[2]
+            if material != face[3]:
+                material = face[3]
                 vertex_range.append((init, len(vertices_list)))
                 init = len(vertices_list)
 
@@ -41,15 +43,21 @@ class ModelHelper():
         return vertex_range
 
     @classmethod
-    def __add_to_texture_list(cls, modelo, textures_coord_list):
-        for face in modelo['faces']:
+    def __add_to_texture_list(cls, model, textures_coord_list):
+        for face in model['faces']:
             for texture_id in face[1]:
-                textures_coord_list.append(modelo['texture'][texture_id-1])
+                textures_coord_list.append(model['texture'][texture_id-1])
+
+    @classmethod
+    def _add_to_normals_list(cls, model, normals_list):
+        for face in model['faces']:
+            for normal_id in face[2]:
+                normals_list.append(model['normals'][normal_id-1])
 
     @classmethod
     def upload_models(cls, shader):
         # Request a buffer slot from GPU
-        buffer = glGenBuffers(2)
+        buffer = glGenBuffers(3)
 
         # Uploading vertices data
         vertices = np.zeros(len(cls.vertices_list), [("position", np.float32, 3)])
@@ -62,8 +70,19 @@ class ModelHelper():
         glEnableVertexAttribArray(loc_vertices)
         glVertexAttribPointer(loc_vertices, 3, GL_FLOAT, False, stride, offset)
 
+        # Uploading normals data
+        normals = np.zeros(len(cls.normals_list), [("position", np.float32, 3)])
+        normals['position'] = cls.normals_list
+        glBindBuffer(GL_ARRAY_BUFFER, buffer[2])
+        glBufferData(GL_ARRAY_BUFFER, normals.nbytes, normals, GL_STATIC_DRAW)
+        stride = normals.strides[0]
+        offset = ctypes.c_void_p(0)
+        loc_normals_coord = shader.getAttributeLocation("normals")
+        glEnableVertexAttribArray(loc_normals_coord)
+        glVertexAttribPointer(loc_normals_coord, 3, GL_FLOAT, False, stride, offset)
+
         # Uploading texture data
-        textures = np.zeros(len(cls.textures_coord_list), [("position", np.float32, 2)]) # duas coordenadas
+        textures = np.zeros(len(cls.textures_coord_list), [("position", np.float32, 2)])
         textures['position'] = cls.textures_coord_list
         glBindBuffer(GL_ARRAY_BUFFER, buffer[1])
         glBufferData(GL_ARRAY_BUFFER, textures.nbytes, textures, GL_STATIC_DRAW)
@@ -72,3 +91,4 @@ class ModelHelper():
         loc_texture_coord = shader.getAttributeLocation("texture_coord")
         glEnableVertexAttribArray(loc_texture_coord)
         glVertexAttribPointer(loc_texture_coord, 2, GL_FLOAT, False, stride, offset)
+

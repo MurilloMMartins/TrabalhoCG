@@ -4,7 +4,7 @@ import glm
 import math
 
 class Model:
-    def __init__(self, name, model_path, texture_paths, texture_ids, ambient_coefficient) -> None:
+    def __init__(self, name, model_path, texture_paths, texture_ids, ambient_coefficient, diffuse_coefficient) -> None:
         self.name = name
         self.texture_id = texture_ids
         self.model = self.__load_model_from_file(model_path)
@@ -18,6 +18,7 @@ class Model:
         self.angle    = 0
 
         self.ambient_coefficient = ambient_coefficient
+        self.diffuse_coefficient = diffuse_coefficient
 
     def __load_model_from_file(self, filename):
         vertices = []
@@ -68,8 +69,13 @@ class Model:
 
                     if len(w) >= 3 and len(w[1]) > 0:
                         face_normals.append(int(w[2]))
+                    else:
+                        face_normals.append(0)
 
-                faces.append((face, face_texture, material))
+                faces.append((face, face_texture, face_normals, material))
+
+        if normals == []:
+            normals = [[0,0,0]]
 
         model = {}
         model['vertices'] = vertices
