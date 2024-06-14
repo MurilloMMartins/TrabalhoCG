@@ -21,6 +21,7 @@ class Model:
         vertices = []
         texture_coords = []
         faces = []
+        normals = []
 
         material = None
 
@@ -37,6 +38,10 @@ class Model:
             # Vertices
             if values[0] == 'v':
                 vertices.append(values[1:4])
+            
+            # Normals
+            if values[0] == 'vn':
+                normals.append(values[1:4])
 
             # Texture Coordinates
             elif values[0] == 'vt':
@@ -50,6 +55,7 @@ class Model:
             elif values[0] == 'f':
                 face = []
                 face_texture = []
+                face_normals = []
                 for v in values[1:]:
                     w = v.split('/')
                     face.append(int(w[0]))
@@ -58,12 +64,16 @@ class Model:
                     else:
                         face_texture.append(0)
 
+                    if len(w) >= 3 and len(w[1]) > 0:
+                        face_normals.append(int(w[2]))
+
                 faces.append((face, face_texture, material))
 
         model = {}
         model['vertices'] = vertices
         model['texture'] = texture_coords
         model['faces'] = faces
+        model['normals'] = normals
 
         return model
     

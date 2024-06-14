@@ -177,10 +177,10 @@ def main():
     dog.rotation = glm.vec3(0.0, 1.0, 0.0)
     dog.scale = glm.vec3(1.0,1.0,1.0)
 
-    crate = Model('crate', 'crate/Crate1.obj', ['crate/crate_1.jpg'], [14])
-    crate.position = glm.vec3(0.0, -2.15, -0.40)
+    crate = Model('crate', 'crate/Wooden_Crate.obj', ['crate/Wooden_Crate_Crate_BaseColor.png'], [14])
+    crate.position = glm.vec3(0.0, -2.4, -0.40)
     crate.rotation = glm.vec3(0.0, 1.0, 0.0)
-    crate.scale = glm.vec3(0.32, 0.32, 0.32)
+    crate.scale = glm.vec3(0.12, 0.12, 0.12)
 
     demoman = Model('demoman', 'demomantf2/scene.obj', ['demomantf2/demoman_red.jpg', 'demomantf2/demoman_head.jpg', 'demomantf2/Eye-Blue.jpg'], [15,16,17])
     demoman.position = glm.vec3(-3.0, -2.7, -10.0)
