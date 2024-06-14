@@ -98,7 +98,11 @@ def main():
     vertex_code = """
         attribute vec3 position;
         attribute vec2 texture_coord;
+        attribute vec3 normal;
+
         varying vec2 out_texture;
+        varying vec3 out_fragPos;
+        varying vec3 out_normal;
                 
         uniform mat4 model;
         uniform mat4 view;
@@ -108,17 +112,30 @@ def main():
         void main(){
             gl_Position = projection * view * model * vec4(position,1.0);
             out_texture = vec2(texture_coord*texture_size);
+            out_fragPos = vec3(position);
+            out_normal = normal;
         }
         """
 
     fragment_code = """
-            uniform vec4 color;
+            uniform vec3 lightPos;
+            uniform float ka;
+            uniform float kd;
+
+            vec3 lightColor = vec3(1.0, 1.0, 1.0);
+
             varying vec2 out_texture;
+            varying vec3 out_normal;
+            varying vec3 out_fragPos;
+
             uniform sampler2D samplerTexture;
             
             void main(){
+                vec3 ambient = ka * lightColor;
+
                 vec4 texture = texture2D(samplerTexture, out_texture);
-                gl_FragColor = texture;
+                vec4 result = vec4((ambient), 1.0) * texture;
+                gl_FragColor = result;
             }
             """
 
@@ -136,54 +153,54 @@ def main():
 
     # Loading Models
     # skybox = Model('skybox', 'skybox/skybox.obj',['skybox/left.jpg', 'skybox/front.jpg', 'skybox/right.jpg', 'skybox/back.jpg', 'skybox/bottom.jpg', 'skybox/top.jpg'], [0,1,2,3,4,5])
-    skybox = Model('skybox', 'skybox/skybox.obj',['night-skyboxes/HornstullsStrand/negz.jpg', 'night-skyboxes/HornstullsStrand/negx.jpg', 'night-skyboxes/HornstullsStrand/posz.jpg', 'night-skyboxes/HornstullsStrand/posx.jpg', 'night-skyboxes/HornstullsStrand/negy.jpg', 'night-skyboxes/HornstullsStrand/posy.jpg'], [0,1,2,3,4,5])
+    skybox = Model('skybox', 'skybox/skybox.obj',['night-skyboxes/HornstullsStrand/negz.jpg', 'night-skyboxes/HornstullsStrand/negx.jpg', 'night-skyboxes/HornstullsStrand/posz.jpg', 'night-skyboxes/HornstullsStrand/posx.jpg', 'night-skyboxes/HornstullsStrand/negy.jpg', 'night-skyboxes/HornstullsStrand/posy.jpg'], [0,1,2,3,4,5], 1)
     skybox.position = glm.vec3(0.0, 0.0, 0.0)
     skybox.rotation = glm.vec3(0.0, 0.0, 1.0)
     skybox.scale = glm.vec3(1000.0, 1000.0, 1000.0)
 
-    tree = Model('tree', 'references/arvore/arvore10.obj',['references/arvore/bark_0021.jpg', 'references/arvore/DB2X2_L01.png'], [6,7])
+    tree = Model('tree', 'references/arvore/arvore10.obj',['references/arvore/bark_0021.jpg', 'references/arvore/DB2X2_L01.png'], [6,7], 0.5)
     tree.position = glm.vec3(7.0, -2.8, 3.2)
     tree.rotation = glm.vec3(0.0, 0.0, 1.0)
     tree.scale = glm.vec3(2.5, 2.5, 2.5)
 
-    road = Model('road', 'road/road/road.obj', ['road/road/road-texture.jpg'], [8])
+    road = Model('road', 'road/road/road.obj', ['road/road/road-texture.jpg'], [8], 0.5)
     road.position = glm.vec3(0.0, -2.5, 10.0)
     road.rotation = glm.vec3(0.0, 1.0, 0.0)
     road.scale = glm.vec3(1.0,1,100.0)
     road.angle = 90
 
-    terrain = Model('terrain', 'ground/terrain.obj', ['ground/aerial_grass_rock_diff_1k.jpg'], [9])
+    terrain = Model('terrain', 'ground/terrain.obj', ['ground/aerial_grass_rock_diff_1k.jpg'], [9], 0.5)
     terrain.position = glm.vec3(0.0, -2.875, 0.0)
     terrain.rotation = glm.vec3(1.0, 0.0, 0.0)
     terrain.scale = glm.vec3(200.0,200.0,1.0)
     terrain.angle = -90.0
 
-    storage = Model('storage', 'storage/Farm_free_obj.obj', ['storage/textures/Farm_Free_BaseColor.png'], [10])
+    storage = Model('storage', 'storage/Farm_free_obj.obj', ['storage/textures/Farm_Free_BaseColor.png'], [10], 0.5)
     storage.position = glm.vec3(0.0, -2.5, 0.0)
     storage.rotation = glm.vec3(0.0, 0.0, 1.0)
     storage.scale = glm.vec3(1.0,1.0,1.0)
 
-    human = Model('human', 'human/human.obj', ['human/human.jpg'], [11])
+    human = Model('human', 'human/human.obj', ['human/human.jpg'], [11], 0.5)
     human.position = glm.vec3(0.0, -2.5, 0.0)
     human.rotation = glm.vec3(0.0, 0.0, 1.0)
     human.scale = glm.vec3(0.015,0.015,0.015)
 
-    hay_cart = Model('haycart', 'hay_cart/hay_cart.obj', ['hay_cart/hay_cart.png'], [12])
+    hay_cart = Model('haycart', 'hay_cart/hay_cart.obj', ['hay_cart/hay_cart.png'], [12], 0.5)
     hay_cart.position = glm.vec3(-9.0, -2.5, 3.2)
     hay_cart.rotation = glm.vec3(0.0, 0.0, 1.0)
     hay_cart.scale = glm.vec3(1.0, 1.0, 1.0)
 
-    dog = Model('dog', 'dog/dog.obj', ['dog/dog.png'], [13])
+    dog = Model('dog', 'dog/dog.obj', ['dog/dog.png'], [13], 0.5)
     dog.position = glm.vec3(0.4, -2.5, 0.0)
     dog.rotation = glm.vec3(0.0, 1.0, 0.0)
     dog.scale = glm.vec3(1.0,1.0,1.0)
 
-    crate = Model('crate', 'crate/Wooden_Crate.obj', ['crate/Wooden_Crate_Crate_BaseColor.png'], [14])
+    crate = Model('crate', 'crate/Wooden_Crate.obj', ['crate/Wooden_Crate_Crate_BaseColor.png'], [14], 0.5)
     crate.position = glm.vec3(0.0, -2.4, -0.40)
     crate.rotation = glm.vec3(0.0, 1.0, 0.0)
     crate.scale = glm.vec3(0.12, 0.12, 0.12)
 
-    demoman = Model('demoman', 'demomantf2/scene.obj', ['demomantf2/demoman_red.jpg', 'demomantf2/demoman_head.jpg', 'demomantf2/Eye-Blue.jpg'], [15,16,17])
+    demoman = Model('demoman', 'demomantf2/scene.obj', ['demomantf2/demoman_red.jpg', 'demomantf2/demoman_head.jpg', 'demomantf2/Eye-Blue.jpg'], [15,16,17], 0.5)
     demoman.position = glm.vec3(-3.0, -2.7, -10.0)
     demoman.rotation = glm.vec3(0.0, 1.0, 0.0)
     demoman.scale = glm.vec3(12.0, 12.0, 12.0)
@@ -236,12 +253,16 @@ def main():
         mat_projection = projection_matrix(height, width)
         loc_projection = shader.getUniformLocation("projection")
         glUniformMatrix4fv(loc_projection, 1, GL_FALSE, glm.value_ptr(mat_projection))  
+        
+        loc_ka = shader.getUniformLocation("ka")
 
+        glUniform1f(loc_ka, skybox.ambient_coefficient)
         mat_model = skybox.model_matrix()
         loc_model = shader.getUniformLocation("model")
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
         ModelHelper.render_model('skybox', GL_QUADS)
 
+        glUniform1f(loc_ka, storage.ambient_coefficient)
         mat_model = storage.model_matrix()
         loc_model = shader.getUniformLocation("model")
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
@@ -250,6 +271,7 @@ def main():
         loc = shader.getUniformLocation("texture_size")
         glUniform2fv(loc, 1, [200.0, 200.0])
 
+        glUniform1f(loc_ka, terrain.ambient_coefficient)
         mat_model = terrain.model_matrix()
         loc_model = shader.getUniformLocation("model")
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
@@ -258,6 +280,7 @@ def main():
         loc = shader.getUniformLocation("texture_size")
         glUniform2fv(loc, 1, [1.0, 100.0])
 
+        glUniform1f(loc_ka, road.ambient_coefficient)
         mat_model = road.model_matrix()
         loc_model = shader.getUniformLocation("model")
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
@@ -266,16 +289,19 @@ def main():
         loc = shader.getUniformLocation("texture_size")
         glUniform2fv(loc, 1, [1.0,1.0])
 
+        glUniform1f(loc_ka, tree.ambient_coefficient)
         mat_model = tree.model_matrix()
         loc_model = shader.getUniformLocation("model")
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
         ModelHelper.render_model('tree', GL_TRIANGLES)
         
+        glUniform1f(loc_ka, human.ambient_coefficient)
         mat_model = human.model_matrix()
         loc_model = shader.getUniformLocation("model")
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
         ModelHelper.render_model('human', GL_TRIANGLES)
         
+        glUniform1f(loc_ka, hay_cart.ambient_coefficient)
         mat_model = hay_cart.model_matrix()
         loc_model = shader.getUniformLocation("model")
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
@@ -290,11 +316,13 @@ def main():
         if theta > 2*np.pi:
             theta = 0.0
 
+        glUniform1f(loc_ka, dog.ambient_coefficient)
         mat_model = dog.model_matrix()
         loc_model = shader.getUniformLocation("model")
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
         ModelHelper.render_model('dog', GL_TRIANGLES)
 
+        glUniform1f(loc_ka, crate.ambient_coefficient)
         mat_model = crate.model_matrix()
         loc_model = shader.getUniformLocation("model")
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))
@@ -302,6 +330,8 @@ def main():
 
         demoman.angle += 1
         demoman.scale = glm.vec3(scale, scale, scale)
+
+        glUniform1f(loc_ka, demoman.ambient_coefficient)
         mat_model = demoman.model_matrix()
         loc_model = shader.getUniformLocation("model")
         glUniformMatrix4fv(loc_model, 1, GL_FALSE, glm.value_ptr(mat_model))

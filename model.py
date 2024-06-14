@@ -4,7 +4,7 @@ import glm
 import math
 
 class Model:
-    def __init__(self, name, model_path, texture_paths, texture_ids) -> None:
+    def __init__(self, name, model_path, texture_paths, texture_ids, ambient_coefficient) -> None:
         self.name = name
         self.texture_id = texture_ids
         self.model = self.__load_model_from_file(model_path)
@@ -16,6 +16,8 @@ class Model:
         self.rotation = glm.vec3(0.0, 0.0, 0.0)
         self.scale    = glm.vec3(1.0, 1.0, 1.0)
         self.angle    = 0
+
+        self.ambient_coefficient = ambient_coefficient
 
     def __load_model_from_file(self, filename):
         vertices = []
