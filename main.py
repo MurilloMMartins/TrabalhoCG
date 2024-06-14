@@ -135,7 +135,8 @@ def main():
     textures = glGenTextures(texture_amount)
 
     # Loading Models
-    skybox = Model('skybox', 'skybox/skybox.obj',['skybox/left.jpg', 'skybox/front.jpg', 'skybox/right.jpg', 'skybox/back.jpg', 'skybox/bottom.jpg', 'skybox/top.jpg'], [0,1,2,3,4,5])
+    # skybox = Model('skybox', 'skybox/skybox.obj',['skybox/left.jpg', 'skybox/front.jpg', 'skybox/right.jpg', 'skybox/back.jpg', 'skybox/bottom.jpg', 'skybox/top.jpg'], [0,1,2,3,4,5])
+    skybox = Model('skybox', 'skybox/skybox.obj',['night-skyboxes/HornstullsStrand/negz.jpg', 'night-skyboxes/HornstullsStrand/negx.jpg', 'night-skyboxes/HornstullsStrand/posz.jpg', 'night-skyboxes/HornstullsStrand/posx.jpg', 'night-skyboxes/HornstullsStrand/negy.jpg', 'night-skyboxes/HornstullsStrand/posy.jpg'], [0,1,2,3,4,5])
     skybox.position = glm.vec3(0.0, 0.0, 0.0)
     skybox.rotation = glm.vec3(0.0, 0.0, 1.0)
     skybox.scale = glm.vec3(1000.0, 1000.0, 1000.0)
