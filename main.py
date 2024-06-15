@@ -182,6 +182,9 @@ def main():
                 vec3 diffuse2 = vec3(0.0, 0.0, 0.0);
                 vec3 ambient2 = vec3(0.0, 0.0, 0.0);
                 vec3 specular2 = vec3(0.0, 0.0, 0.0);
+
+                float attenuation1 = 0.0;
+                float attenuation2 = 0.0;
             
                 if(outside == 1 || outside == 2){
                     ambient1 = Ia * ka * lightColor1;
@@ -195,6 +198,9 @@ def main():
                     vec3 reflectDir1 = reflect(-lightDir1, norm1);
                     float spec1 = pow(max(dot(viewDir1, reflectDir1), 0.0), ns);
                     specular1 = Is * ks * spec1 * lightColor1;
+
+                    float dist1 = length(lightPos1 - out_fragPos);
+                    attenuation1 = clamp(2.0 / dist1, 0.0, 1.0);
                 }
                 if(outside == 0 || outside == 2){
                     ambient2 = Ia * ka * lightColor2;
@@ -208,10 +214,16 @@ def main():
                     vec3 reflectDir2 = reflect(-lightDir2, norm2);
                     float spec2 = pow(max(dot(viewDir2, reflectDir2), 0.0), ns);
                     specular2 = Is * ks * spec2 * lightColor2;
+
+                    float dist2 = length(lightPos2 - out_fragPos);
+                    attenuation2 = clamp(2.0 / dist2, 0.0, 1.0);
                 }
 
+                vec3 light1 = attenuation1*(ambient1 + diffuse1 + specular1);
+                vec3 light2 = attenuation2*(ambient2 + diffuse2 + specular2);
+
                 vec4 texture = texture2D(samplerTexture, out_texture);
-                vec4 result = vec4((ambient1 + diffuse1 + specular1 + ambient2 + diffuse2 + specular2), 1.0) * texture;
+                vec4 result = vec4((light1 + light2), 1.0) * texture;
                 gl_FragColor = result;
             }
             """
@@ -230,7 +242,7 @@ def main():
 
     # Loading Models
     # skybox = Model('skybox', 'skybox/skybox.obj',['skybox/left.jpg', 'skybox/front.jpg', 'skybox/right.jpg', 'skybox/back.jpg', 'skybox/bottom.jpg', 'skybox/top.jpg'], [0,1,2,3,4,5])
-    skybox = Model('skybox', 'skybox/skybox.obj',['night-skyboxes/HornstullsStrand/negz.jpg', 'night-skyboxes/HornstullsStrand/negx.jpg', 'night-skyboxes/HornstullsStrand/posz.jpg', 'night-skyboxes/HornstullsStrand/posx.jpg', 'night-skyboxes/HornstullsStrand/negy.jpg', 'night-skyboxes/HornstullsStrand/posy.jpg'], [0,1,2,3,4,5], 1, 0.0, 0.0, 0.0)
+    skybox = Model('skybox', 'skybox/skybox.obj',['night-skyboxes/HornstullsStrand/negz.jpg', 'night-skyboxes/HornstullsStrand/negx.jpg', 'night-skyboxes/HornstullsStrand/posz.jpg', 'night-skyboxes/HornstullsStrand/posx.jpg', 'night-skyboxes/HornstullsStrand/negy.jpg', 'night-skyboxes/HornstullsStrand/posy.jpg'], [0,1,2,3,4,5], 1, 0.0, 0.0, 1.0)
     skybox.position = glm.vec3(0.0, 0.0, 0.0)
     skybox.rotation = glm.vec3(0.0, 0.0, 1.0)
     skybox.scale = glm.vec3(1000.0, 1000.0, 1000.0)
