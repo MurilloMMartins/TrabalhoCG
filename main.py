@@ -163,7 +163,9 @@ def main():
             uniform vec3 viewPos;
 
             uniform vec3 lightPos1;
-            vec3 lightColor1 = vec3(0.5, 0.5, 1.00);
+            vec3 lightColor1 = vec3(0.5, 0.5, 1.0);
+            uniform vec3 lightPos2;
+            vec3 lightColor2 = vec3(1.0, 0.95, 0.5);
 
             uniform int outside;
 
@@ -177,6 +179,9 @@ def main():
                 vec3 diffuse1 = vec3(0.0, 0.0, 0.0);
                 vec3 ambient1 = vec3(0.0, 0.0, 0.0);
                 vec3 specular1 = vec3(0.0, 0.0, 0.0);
+                vec3 diffuse2 = vec3(0.0, 0.0, 0.0);
+                vec3 ambient2 = vec3(0.0, 0.0, 0.0);
+                vec3 specular2 = vec3(0.0, 0.0, 0.0);
             
                 if(outside == 1 || outside == 2){
                     ambient1 = Ia * ka * lightColor1;
@@ -191,9 +196,22 @@ def main():
                     float spec1 = pow(max(dot(viewDir1, reflectDir1), 0.0), ns);
                     specular1 = Is * ks * spec1 * lightColor1;
                 }
+                if(outside == 0 || outside == 2){
+                    ambient2 = Ia * ka * lightColor2;
+
+                    vec3 norm2 = normalize(out_normal);
+                    vec3 lightDir2 = normalize(lightPos2 - out_fragPos);
+                    float diff = max(dot(norm2, lightDir2), 0.0);
+                    diffuse2 = Id * kd * diff * lightColor2;
+
+                    vec3 viewDir2 = normalize(viewPos - out_fragPos); 
+                    vec3 reflectDir2 = reflect(-lightDir2, norm2);
+                    float spec2 = pow(max(dot(viewDir2, reflectDir2), 0.0), ns);
+                    specular2 = Is * ks * spec2 * lightColor2;
+                }
 
                 vec4 texture = texture2D(samplerTexture, out_texture);
-                vec4 result = vec4((ambient1 + diffuse1 + specular1), 1.0) * texture;
+                vec4 result = vec4((ambient1 + diffuse1 + specular1 + ambient2 + diffuse2 + specular2), 1.0) * texture;
                 gl_FragColor = result;
             }
             """
@@ -243,7 +261,7 @@ def main():
     storage.rotation = glm.vec3(0.0, 0.0, 1.0)
     storage.scale = glm.vec3(1.0,1.0,1.0)
 
-    human = Model('human', 'human/human.obj', ['human/human.jpg'], [11], 0.1, 1.0, 1.0, 8)
+    human = Model('human', 'human/human.obj', ['human/human.jpg'], [11], 0.3, 1.0, 1.0, 2)
     human.position = glm.vec3(0.0, -2.5, 0.0)
     human.rotation = glm.vec3(0.0, 0.0, 1.0)
     human.scale = glm.vec3(0.015,0.015,0.015)
@@ -323,6 +341,8 @@ def main():
 
         loc_light_pos1 = shader.getUniformLocation("lightPos1")
         glUniform3fv(loc_light_pos1, 1, [dog.position.x, dog.position.y + 2, dog.position.z])
+        loc_light_pos2 = shader.getUniformLocation("lightPos2")
+        glUniform3fv(loc_light_pos2, 1, [0.0, 0.0, 0.0])
 
         loc_Ia = shader.getUniformLocation("Ia")
         loc_Id = shader.getUniformLocation("Id")
