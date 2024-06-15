@@ -4,7 +4,7 @@ import glm
 import math
 
 class Model:
-    def __init__(self, name, model_path, texture_paths, texture_ids, ambient_coefficient, diffuse_coefficient) -> None:
+    def __init__(self, name, model_path, texture_paths, texture_ids, ambient_coefficient, diffuse_coefficient, specular_coefficient, specular_exponent) -> None:
         self.name = name
         self.texture_id = texture_ids
         self.model = self.__load_model_from_file(model_path)
@@ -19,6 +19,8 @@ class Model:
 
         self.ambient_coefficient = ambient_coefficient
         self.diffuse_coefficient = diffuse_coefficient
+        self.specular_coefficient = specular_coefficient
+        self.specular_exponent = specular_exponent
 
     def __load_model_from_file(self, filename):
         vertices = []
